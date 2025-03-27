@@ -13,6 +13,7 @@ import {
 import { Menu, X, User, Settings, LogOut, MessageSquare, Building, HelpCircle, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import Logo from "./Logo";
 
 const routes = [
   { name: "Home", path: "/", icon: Home },
@@ -59,9 +60,10 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <span className="text-xl font-bold text-brand-600">LinkLease</span>
-          </Link>
+          <Logo 
+            size={isScrolled ? "md" : "lg"} 
+            textColor={isScrolled ? "text-coral-500" : "text-coral-500"} 
+          />
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-1">
@@ -72,7 +74,7 @@ const Navbar = () => {
                 className={cn(
                   "px-3 py-2 rounded-md text-sm font-medium transition-colors",
                   isActive(route.path)
-                    ? "text-brand-600 bg-brand-50"
+                    ? "text-coral-600 bg-coral-50"
                     : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                 )}
               >
@@ -89,7 +91,7 @@ const Navbar = () => {
                   <Button variant="ghost" size="sm">Sign In</Button>
                 </Link>
                 <Link to="/auth?tab=signup">
-                  <Button size="sm" className="bg-brand-500 hover:bg-brand-600">Sign Up</Button>
+                  <Button size="sm" className="bg-coral-500 hover:bg-coral-600">Sign Up</Button>
                 </Link>
               </>
             ) : (
@@ -98,7 +100,7 @@ const Navbar = () => {
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar className="h-9 w-9">
                       <AvatarImage src={user?.user_metadata?.avatar_url || ""} alt="Profile" />
-                      <AvatarFallback className="bg-brand-100 text-brand-800">
+                      <AvatarFallback className="bg-coral-100 text-coral-800">
                         {user?.email?.charAt(0).toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
@@ -163,7 +165,7 @@ const Navbar = () => {
                 className={cn(
                   "block px-3 py-2 rounded-md text-base font-medium",
                   isActive(route.path)
-                    ? "text-brand-600 bg-brand-50"
+                    ? "text-coral-600 bg-coral-50"
                     : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                 )}
               >
@@ -183,7 +185,7 @@ const Navbar = () => {
                   </Button>
                 </Link>
                 <Link to="/auth?tab=signup">
-                  <Button className="w-full justify-start bg-brand-500 hover:bg-brand-600">
+                  <Button className="w-full justify-start bg-coral-500 hover:bg-coral-600">
                     <User className="mr-2 h-4 w-4" />
                     Sign Up
                   </Button>
@@ -194,7 +196,7 @@ const Navbar = () => {
                 <div className="px-3 py-2 flex items-center">
                   <Avatar className="h-9 w-9 mr-3">
                     <AvatarImage src={user?.user_metadata?.avatar_url || ""} alt="Profile" />
-                    <AvatarFallback className="bg-brand-100 text-brand-800">
+                    <AvatarFallback className="bg-coral-100 text-coral-800">
                       {user?.email?.charAt(0).toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>

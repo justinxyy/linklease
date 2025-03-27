@@ -8,29 +8,24 @@ const Hero = () => {
   const [searchFocused, setSearchFocused] = useState(false);
   
   return (
-    <section className="relative bg-gradient-to-b from-brand-50 to-background pt-24 md:pt-32 pb-16 md:pb-24 overflow-hidden">
-      {/* Updated hero image with less opacity and better styling */}
-      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=85')] bg-cover bg-center opacity-[0.15] motion-safe:transition-transform motion-safe:duration-[25s] motion-safe:parallax-bg"></div>
+    <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      {/* Full-screen background with no opacity filter */}
+      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=85')] bg-cover bg-center motion-safe:transition-transform motion-safe:duration-[25s] motion-safe:parallax-bg"></div>
       
-      <div className="relative section-container">
-        <div className="max-w-3xl mx-auto text-center space-y-8 animate-fade-in">
-          <div className="space-y-4">
-            <span className="inline-block px-3 py-1 bg-brand-100 text-brand-700 rounded-full text-sm font-medium">
-              Simplifying Student Subleasing
-            </span>
-            <h1 className="font-semibold tracking-tight text-balance">
-              Find Your Perfect <span className="text-gradient">Temporary Home</span>
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Connect with verified students and young professionals for safe, trusted, and flexible housing solutions on and near campuses nationwide.
-            </p>
-          </div>
-
+      {/* Overlay gradient for better readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/30"></div>
+      
+      <div className="relative w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="space-y-6 animate-fade-in">
+          <h1 className="font-bold text-4xl md:text-5xl lg:text-6xl text-white drop-shadow-md">
+            Find Your Perfect Temporary Home
+          </h1>
+          
           <div className="max-w-2xl mx-auto">
             <div 
               className={cn(
-                "relative bg-white rounded-xl shadow-sm transition-all duration-300 ease-in-out p-1",
-                searchFocused ? "ring-2 ring-brand-500 shadow-lg" : "ring-1 ring-border"
+                "relative bg-white rounded-xl shadow-md transition-all duration-300 ease-in-out p-1.5",
+                searchFocused ? "ring-2 ring-coral-500 shadow-lg" : ""
               )}
             >
               <div className="flex items-center">
@@ -40,7 +35,7 @@ const Hero = () => {
                     <input
                       type="text"
                       placeholder="Location, university, or address..."
-                      className="w-full bg-transparent border-0 focus:outline-none text-sm md:text-base py-1.5"
+                      className="w-full bg-transparent border-0 focus:outline-none text-base md:text-lg py-2"
                       onFocus={() => setSearchFocused(true)}
                       onBlur={() => setSearchFocused(false)}
                     />
@@ -48,8 +43,8 @@ const Hero = () => {
                 </div>
                 <div className="pr-1">
                   <Button 
-                    className="btn-transition bg-brand-500 hover:bg-brand-600 rounded-lg"
-                    size="sm"
+                    className="btn-transition bg-coral-500 hover:bg-coral-600 rounded-lg"
+                    size="lg"
                   >
                     Search
                   </Button>
@@ -57,18 +52,18 @@ const Hero = () => {
               </div>
             </div>
 
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-sm text-muted-foreground">
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-sm text-white">
               <span>Popular:</span>
-              <button className="px-2.5 py-1 bg-white/80 hover:bg-white rounded-full border transition-colors">
+              <button className="px-2.5 py-1 bg-white/20 hover:bg-white/30 rounded-full border border-white/30 transition-colors">
                 UC Berkeley
               </button>
-              <button className="px-2.5 py-1 bg-white/80 hover:bg-white rounded-full border transition-colors">
+              <button className="px-2.5 py-1 bg-white/20 hover:bg-white/30 rounded-full border border-white/30 transition-colors">
                 NYU
               </button>
-              <button className="px-2.5 py-1 bg-white/80 hover:bg-white rounded-full border transition-colors">
+              <button className="px-2.5 py-1 bg-white/20 hover:bg-white/30 rounded-full border border-white/30 transition-colors">
                 Stanford
               </button>
-              <button className="px-2.5 py-1 bg-white/80 hover:bg-white rounded-full border transition-colors">
+              <button className="px-2.5 py-1 bg-white/20 hover:bg-white/30 rounded-full border border-white/30 transition-colors">
                 University of Michigan
               </button>
             </div>
