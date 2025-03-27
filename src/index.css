@@ -144,6 +144,13 @@
   .section-container {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 lg:py-20;
   }
+  
+  /* Added for parallax effect */
+  .parallax-bg {
+    transform: translateZ(0);
+    animation: subtle-pan 30s ease-in-out infinite alternate;
+    will-change: transform;
+  }
 }
 
 @layer utilities {
@@ -153,5 +160,24 @@
   
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-600 to-brand-400;
+  }
+  
+  /* Sticky search transition */
+  .search-bar-sticky {
+    @apply transition-all duration-300 ease-in-out;
+  }
+  
+  .search-bar-sticky.stuck {
+    @apply shadow-md;
+  }
+}
+
+/* Parallax animation */
+@keyframes subtle-pan {
+  0% {
+    transform: scale(1.05) translate3d(-1%, -1%, 0);
+  }
+  100% {
+    transform: scale(1.05) translate3d(1%, 1%, 0);
   }
 }

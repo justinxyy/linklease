@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Send, Phone, Video, Image, Paperclip, MoreHorizontal, ArrowLeft } from "lucide-react";
+import { Search, Send, Phone, Video, Image, Paperclip, MoreHorizontal, ArrowLeft, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Mock data for conversations

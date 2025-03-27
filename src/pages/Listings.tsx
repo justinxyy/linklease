@@ -1,12 +1,13 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ListingCard from "@/components/ListingCard";
 import SearchBar from "@/components/SearchBar";
+import MapView from "@/components/MapView";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { MapPin, Calendar, DollarSign, Filter, Check, ArrowDownUp } from "lucide-react";
+import { MapPin, Calendar, DollarSign, Filter, Check, ArrowDownUp, Map, List } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // Mock data for listings
 const mockListings = [
@@ -132,10 +133,26 @@ const Listings = () => {
   const [priceRange, setPriceRange] = useState([500, 2000]);
   const [selectedPropertyType, setSelectedPropertyType] = useState("Any");
   const [sortOption, setSortOption] = useState("recommended");
+  const [showMap, setShowMap] = useState(false);
+  const [isSearchSticky, setIsSearchSticky] = useState(false);
+  
+  const searchBarRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     // Simulate content loading
     setIsLoaded(true);
+    
+    // Set up scroll listener for sticky search bar
+    const handleScroll = () => {
+      if (searchBarRef.current && headerRef.current) {
+        const headerBottom = headerRef.current.getBoundingClientRect().bottom;
+        setIsSearchSticky(headerBottom <= 0);
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
   return (
@@ -144,27 +161,57 @@ const Listings = () => {
       
       <main className="flex-grow pt-24 pb-12">
         <div className="section-container py-8">
-          <div className="mb-8">
+          <div className="mb-8" ref={headerRef}>
             <h1 className="text-3xl md:text-4xl font-medium mb-4">Available Subleases</h1>
             <p className="text-muted-foreground">
               Find verified short-term housing from students and young professionals.
             </p>
           </div>
           
-          {/* Search and Filter Controls */}
-          <div className="mb-8">
+          {/* Search and Filter Controls - Sticky on scroll */}
+          <div 
+            ref={searchBarRef}
+            className={cn(
+              "search-bar-sticky z-20 bg-background py-4",
+              isSearchSticky ? "sticky top-0 left-0 right-0 px-4 sm:px-6 lg:px-8 -mx-4 sm:-mx-6 lg:-mx-8 stuck" : ""
+            )}
+          >
             <SearchBar variant="expanded" className="mb-4" />
             
             <div className="flex flex-wrap items-center justify-between gap-4">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2"
-                onClick={() => setIsFilterOpen(!isFilterOpen)}
-              >
-                <Filter className="h-4 w-4" />
-                Filters
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2"
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                >
+                  <Filter className="h-4 w-4" />
+                  Filters
+                </Button>
+                
+                {/* Map/List toggle */}
+                <div className="flex items-center bg-muted rounded-md p-1">
+                  <Button
+                    variant={showMap ? "ghost" : "secondary"}
+                    size="sm"
+                    className="flex items-center gap-1.5"
+                    onClick={() => setShowMap(false)}
+                  >
+                    <List className="h-4 w-4" />
+                    <span className="hidden sm:inline">List</span>
+                  </Button>
+                  <Button
+                    variant={showMap ? "secondary" : "ghost"}
+                    size="sm"
+                    className="flex items-center gap-1.5"
+                    onClick={() => setShowMap(true)}
+                  >
+                    <Map className="h-4 w-4" />
+                    <span className="hidden sm:inline">Map</span>
+                  </Button>
+                </div>
+              </div>
               
               <div className="flex items-center gap-3">
                 <span className="text-sm text-muted-foreground">Sort by:</span>
@@ -285,48 +332,59 @@ const Listings = () => {
             <p>Showing {mockListings.length} available subleases</p>
           </div>
           
-          {/* Listings Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {mockListings.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                id={listing.id}
-                title={listing.title}
-                location={listing.location}
-                price={listing.price}
-                rating={listing.rating}
-                reviewCount={listing.reviewCount}
-                imageUrl={listing.imageUrl}
-                startDate={listing.startDate}
-                endDate={listing.endDate}
+          {/* Conditionally show map or grid view */}
+          {showMap ? (
+            <div className="h-[calc(100vh-24rem)]">
+              <MapView 
+                listings={mockListings} 
+                onMarkerClick={(id) => console.log(`Clicked listing ${id}`)}
               />
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {mockListings.map((listing) => (
+                <ListingCard
+                  key={listing.id}
+                  id={listing.id}
+                  title={listing.title}
+                  location={listing.location}
+                  price={listing.price}
+                  rating={listing.rating}
+                  reviewCount={listing.reviewCount}
+                  imageUrl={listing.imageUrl}
+                  startDate={listing.startDate}
+                  endDate={listing.endDate}
+                />
+              ))}
+            </div>
+          )}
           
-          {/* Pagination */}
-          <div className="mt-12 flex justify-center">
-            <nav className="flex items-center gap-1">
-              <button className="px-3 py-2 rounded-md border text-sm hover:bg-gray-50 transition-colors">
-                Previous
-              </button>
-              <button className="w-10 h-10 rounded-md flex items-center justify-center bg-brand-50 text-brand-600 border-brand-200 border font-medium">
-                1
-              </button>
-              <button className="w-10 h-10 rounded-md flex items-center justify-center hover:bg-gray-50 transition-colors border">
-                2
-              </button>
-              <button className="w-10 h-10 rounded-md flex items-center justify-center hover:bg-gray-50 transition-colors border">
-                3
-              </button>
-              <span className="px-2">...</span>
-              <button className="w-10 h-10 rounded-md flex items-center justify-center hover:bg-gray-50 transition-colors border">
-                8
-              </button>
-              <button className="px-3 py-2 rounded-md border text-sm hover:bg-gray-50 transition-colors">
-                Next
-              </button>
-            </nav>
-          </div>
+          {/* Pagination - Only show in list view */}
+          {!showMap && (
+            <div className="mt-12 flex justify-center">
+              <nav className="flex items-center gap-1">
+                <button className="px-3 py-2 rounded-md border text-sm hover:bg-gray-50 transition-colors">
+                  Previous
+                </button>
+                <button className="w-10 h-10 rounded-md flex items-center justify-center bg-brand-50 text-brand-600 border-brand-200 border font-medium">
+                  1
+                </button>
+                <button className="w-10 h-10 rounded-md flex items-center justify-center hover:bg-gray-50 transition-colors border">
+                  2
+                </button>
+                <button className="w-10 h-10 rounded-md flex items-center justify-center hover:bg-gray-50 transition-colors border">
+                  3
+                </button>
+                <span className="px-2">...</span>
+                <button className="w-10 h-10 rounded-md flex items-center justify-center hover:bg-gray-50 transition-colors border">
+                  8
+                </button>
+                <button className="px-3 py-2 rounded-md border text-sm hover:bg-gray-50 transition-colors">
+                  Next
+                </button>
+              </nav>
+            </div>
+          )}
         </div>
       </main>
       
