@@ -29,8 +29,8 @@ const Index = () => {
         <section className="section-container py-16 md:py-24">
           <div className="grid md:grid-cols-3 gap-10">
             <div className="flex flex-col items-center text-center p-6 rounded-xl bg-card border">
-              <div className="w-14 h-14 rounded-full bg-brand-100 flex items-center justify-center mb-4">
-                <Shield className="h-7 w-7 text-brand-600" />
+              <div className="w-14 h-14 rounded-full bg-coral-100 flex items-center justify-center mb-4">
+                <Shield className="h-7 w-7 text-coral-600" />
               </div>
               <h3 className="text-xl font-medium mb-2">Verified Profiles</h3>
               <p className="text-muted-foreground">
@@ -64,19 +64,19 @@ const Index = () => {
         <HowItWorks />
         
         {/* CTA Section */}
-        <section className="relative bg-brand-600 text-white overflow-hidden py-16 md:py-24">
+        <section className="relative bg-coral-500 text-white overflow-hidden py-16 md:py-24">
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1621168322085-57c5a7e3a9e8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80')] bg-cover opacity-10"></div>
           <div className="relative section-container">
             <div className="max-w-3xl mx-auto text-center space-y-8">
               <h2 className="text-3xl md:text-4xl font-medium">Have a space to sublease?</h2>
               <p className="text-white/90 text-lg">
-                List your space on LinkLease and connect with trusted students and young professionals looking for short-term housing.
+                List your space on Subleasify and connect with trusted students and young professionals looking for short-term housing.
               </p>
               <div className="pt-4">
                 <Button
                   variant="outline"
                   size="lg"
-                  className="bg-white text-brand-600 hover:bg-white/90 border-white btn-transition"
+                  className="bg-white text-coral-500 hover:bg-white/90 border-white btn-transition"
                 >
                   List Your Lease
                 </Button>
@@ -104,7 +104,7 @@ const Index = () => {
                 ))}
               </div>
               <p className="italic text-muted-foreground mb-4">
-                "LinkLease made my summer internship housing search so much easier. I found a great place near my internship from a fellow student. The verification process gave me peace of mind."
+                "Subleasify made my summer internship housing search so much easier. I found a great place near my internship from a fellow student. The verification process gave me peace of mind."
               </p>
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
@@ -130,7 +130,7 @@ const Index = () => {
                 ))}
               </div>
               <p className="italic text-muted-foreground mb-4">
-                "When I decided to study abroad, I was worried about what to do with my apartment. LinkLease connected me with the perfect subleaser, and the process was seamless."
+                "When I decided to study abroad, I was worried about what to do with my apartment. Subleasify connected me with the perfect subleaser, and the process was seamless."
               </p>
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
@@ -156,7 +156,7 @@ const Index = () => {
                 ))}
               </div>
               <p className="italic text-muted-foreground mb-4">
-                "As someone who needed housing for just one semester, finding a place was always difficult. LinkLease provided exactly what I needed, and I felt safe through the entire process."
+                "As someone who needed housing for just one semester, finding a place was always difficult. Subleasify provided exactly what I needed, and I felt safe through the entire process."
               </p>
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">

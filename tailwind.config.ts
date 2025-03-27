@@ -53,7 +53,7 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Adding coral color palette
+        // Updated coral color palette to be more pastel
         coral: {
           "50": "hsl(var(--coral-50))",
           "100": "hsl(var(--coral-100))",
