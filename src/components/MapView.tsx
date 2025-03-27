@@ -1,167 +1,144 @@
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { Loader } from "@googlemaps/js-api-loader";
+import { useEffect, useRef, useState } from 'react';
+import { Loader } from '@googlemaps/js-api-loader';
 
-interface MapViewProps {
-  listings: any[];
-  onMarkerClick?: (listingId: string) => void;
+// Define interface for listings
+interface Listing {
+  id: string;
+  title: string;
+  location: string;
+  price: number;
+  imageUrl: string;
+  // Add other properties as needed
 }
 
-const MapView = ({ listings, onMarkerClick }: MapViewProps) => {
+interface MapViewProps {
+  listings: Listing[];
+  onMarkerClick?: (id: string) => void;
+  className?: string;
+}
+
+// This is a mock API key for demonstration
+// In production, you should use environment variables
+const GOOGLE_MAPS_API_KEY = "YOUR_API_KEY";
+
+const MapView = ({ listings, onMarkerClick, className = "" }: MapViewProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
+  const [infoWindow, setInfoWindow] = useState<google.maps.InfoWindow | null>(null);
   
-  // Function to initialize the map
-  const initializeMap = useCallback(async () => {
-    if (!mapRef.current) return;
-    
-    try {
-      const loader = new Loader({
-        apiKey: "",  // We'll prompt the user to enter this
-        version: "weekly",
-        libraries: ["places"]
-      });
-      
-      const google = await loader.load();
-      
-      // Default to center of US if no listings
-      const center = listings.length > 0 
-        ? { lat: 37.7749, lng: -122.4194 } // San Francisco by default
-        : { lat: 39.8283, lng: -98.5795 }; // Center of US
-      
-      const mapOptions: google.maps.MapOptions = {
-        center,
-        zoom: 5,
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: true,
-        zoomControl: true,
-        styles: [
-          {
-            featureType: "poi",
-            elementType: "labels",
-            stylers: [{ visibility: "off" }]
-          }
-        ]
-      };
-      
-      const newMap = new google.maps.Map(mapRef.current, mapOptions);
-      setMap(newMap);
-      
-      // Add markers for listings
-      const bounds = new google.maps.LatLngBounds();
-      const newMarkers = listings.map(listing => {
-        // For demo, we'll use random positions around SF if no coordinates
-        const position = { 
-          lat: 37.7749 + (Math.random() * 0.1 - 0.05), 
-          lng: -122.4194 + (Math.random() * 0.1 - 0.05) 
-        };
+  useEffect(() => {
+    // Load the Google Maps API
+    const loader = new Loader({
+      apiKey: GOOGLE_MAPS_API_KEY,
+      version: "weekly",
+    });
+
+    loader.load().then(() => {
+      if (mapRef.current && !map) {
+        // Create a new map instance
+        const newMap = new google.maps.Map(mapRef.current, {
+          center: { lat: 37.7749, lng: -122.4194 }, // Default to San Francisco
+          zoom: 12,
+          mapTypeControl: false,
+          fullscreenControl: false,
+          streetViewControl: false,
+          zoomControl: true,
+          styles: [
+            {
+              featureType: "poi",
+              elementType: "labels",
+              stylers: [{ visibility: "off" }],
+            },
+          ],
+        });
         
-        bounds.extend(position);
+        setMap(newMap);
+        setInfoWindow(new google.maps.InfoWindow());
+      }
+    });
+  }, [map]);
+
+  // Add markers when the map and listings are available
+  useEffect(() => {
+    if (map && listings.length > 0 && typeof google !== 'undefined') {
+      // Remove existing markers
+      markers.forEach((marker) => marker.setMap(null));
+      
+      // Mock geocoding (in a real app, you would use geocoding service or store coordinates)
+      const mockLocations = [
+        { lat: 37.7749, lng: -122.4194 }, // San Francisco
+        { lat: 37.8715, lng: -122.2730 }, // Berkeley
+        { lat: 37.4419, lng: -122.1430 }, // Palo Alto
+        { lat: 42.2808, lng: -83.7430 }, // Ann Arbor
+        { lat: 42.3736, lng: -71.1097 }, // Cambridge
+        { lat: 40.7128, lng: -74.0060 }, // New York
+        { lat: 37.4275, lng: -122.1697 }, // Stanford
+        { lat: 34.0522, lng: -118.2437 }, // Los Angeles
+        { lat: 42.3601, lng: -71.0589 }, // Boston
+      ];
+      
+      // Create new markers
+      const newMarkers = listings.map((listing, index) => {
+        // Use mock location (replace with real coordinates in production)
+        const position = mockLocations[index % mockLocations.length];
         
         const marker = new google.maps.Marker({
           position,
-          map: newMap,
+          map,
           title: listing.title,
           label: {
             text: `$${listing.price}`,
-            className: "marker-label"
-          }
+            color: "white",
+            fontSize: "14px",
+            fontWeight: "bold",
+          },
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 14,
+            fillColor: "#0ea5e9",
+            fillOpacity: 1,
+            strokeColor: "white",
+            strokeWeight: 2,
+          },
         });
-        
-        // Add click listener
+
         marker.addListener("click", () => {
+          if (infoWindow) {
+            infoWindow.setContent(`
+              <div style="width: 240px; padding: 8px;">
+                <h3 style="font-weight: bold; margin-bottom: 8px;">${listing.title}</h3>
+                <p>${listing.location}</p>
+                <p style="font-weight: bold;">$${listing.price}/mo</p>
+              </div>
+            `);
+            infoWindow.open(map, marker);
+          }
+          
           if (onMarkerClick) {
             onMarkerClick(listing.id);
           }
         });
-        
+
         return marker;
       });
-      
+
       setMarkers(newMarkers);
-      
-      // Fit map to markers if we have any
+
+      // Fit bounds to show all markers
       if (newMarkers.length > 0) {
-        newMap.fitBounds(bounds);
-        // Don't zoom in too far
-        if (newMap.getZoom()! > 15) {
-          newMap.setZoom(15);
-        }
-      }
-    } catch (error) {
-      console.error("Error loading Google Maps:", error);
-    }
-  }, [listings, onMarkerClick]);
-  
-  // Initialize map when component mounts
-  useEffect(() => {
-    initializeMap();
-    
-    return () => {
-      // Clean up markers
-      markers.forEach(marker => marker.setMap(null));
-    };
-  }, [initializeMap]);
-  
-  // Update markers when listings change
-  useEffect(() => {
-    if (!map) return;
-    
-    // Clear existing markers
-    markers.forEach(marker => marker.setMap(null));
-    
-    // Add new markers
-    const bounds = new google.maps.LatLngBounds();
-    const newMarkers = listings.map(listing => {
-      // For demo, we'll use random positions around SF if no coordinates
-      const position = { 
-        lat: 37.7749 + (Math.random() * 0.1 - 0.05), 
-        lng: -122.4194 + (Math.random() * 0.1 - 0.05) 
-      };
-      
-      bounds.extend(position);
-      
-      const marker = new google.maps.Marker({
-        position,
-        map,
-        title: listing.title,
-        label: {
-          text: `$${listing.price}`,
-          className: "marker-label"
-        }
-      });
-      
-      // Add click listener
-      marker.addListener("click", () => {
-        if (onMarkerClick) {
-          onMarkerClick(listing.id);
-        }
-      });
-      
-      return marker;
-    });
-    
-    setMarkers(newMarkers);
-    
-    // Fit map to markers if we have any
-    if (newMarkers.length > 0) {
-      map.fitBounds(bounds);
-      // Don't zoom in too far
-      if (map.getZoom()! > 15) {
-        map.setZoom(15);
+        const bounds = new google.maps.LatLngBounds();
+        newMarkers.forEach((marker) => {
+          bounds.extend(marker.getPosition()!);
+        });
+        map.fitBounds(bounds);
       }
     }
-  }, [listings, map, onMarkerClick]);
-  
+  }, [map, listings, infoWindow, markers, onMarkerClick]);
+
   return (
-    <div className="h-full w-full rounded-xl overflow-hidden border shadow-sm">
-      <div ref={mapRef} className="h-full w-full" />
-      <div className="absolute bottom-4 left-4 bg-white px-3 py-2 rounded-lg shadow-md text-sm">
-        <p>Enter your Google Maps API key in site settings</p>
-      </div>
-    </div>
+    <div ref={mapRef} className={`w-full h-full min-h-[400px] rounded-xl overflow-hidden ${className}`}></div>
   );
 };
 

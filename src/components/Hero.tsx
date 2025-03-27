@@ -9,8 +9,8 @@ const Hero = () => {
   
   return (
     <section className="relative bg-gradient-to-b from-brand-50 to-background pt-24 md:pt-32 pb-16 md:pb-24 overflow-hidden">
-      {/* Update to a more engaging hero image with parallax effect */}
-      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80')] bg-cover bg-center opacity-[0.07] motion-safe:transition-transform motion-safe:duration-[25s] motion-safe:parallax-bg"></div>
+      {/* Updated hero image with less opacity and better styling */}
+      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=85')] bg-cover bg-center opacity-[0.15] motion-safe:transition-transform motion-safe:duration-[25s] motion-safe:parallax-bg"></div>
       
       <div className="relative section-container">
         <div className="max-w-3xl mx-auto text-center space-y-8 animate-fade-in">

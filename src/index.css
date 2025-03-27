@@ -181,3 +181,6 @@
     transform: scale(1.05) translate3d(1%, 1%, 0);
   }
 }
+
+/* Added for the Calendar icon error fix */
+import { Calendar } from 'lucide-react';

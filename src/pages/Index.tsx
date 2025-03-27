@@ -22,6 +22,9 @@ const Index = () => {
       <main className="flex-grow">
         <Hero />
         
+        {/* Featured Listings moved up - immediately after the hero */}
+        <FeaturedListings />
+        
         {/* Features Section */}
         <section className="section-container py-16 md:py-24">
           <div className="grid md:grid-cols-3 gap-10">
@@ -56,9 +59,6 @@ const Index = () => {
             </div>
           </div>
         </section>
-        
-        {/* Featured Listings */}
-        <FeaturedListings />
         
         {/* How It Works */}
         <HowItWorks />
