@@ -9,6 +9,7 @@ declare namespace google {
       getBounds(): LatLngBounds;
       getCenter(): LatLng;
       getZoom(): number;
+      fitBounds(bounds: LatLngBounds | LatLngBoundsLiteral, padding?: number | Padding): void;
     }
 
     class LatLng {
@@ -52,6 +53,8 @@ declare namespace google {
       zoomControl?: boolean;
       mapTypeId?: string;
       streetViewControl?: boolean;
+      mapTypeControl?: boolean;
+      fullscreenControl?: boolean;
       styles?: any[];
       gestureHandling?: string;
     }
@@ -66,6 +69,13 @@ declare namespace google {
       north: number;
       south: number;
       west: number;
+    }
+
+    interface Padding {
+      top: number;
+      right: number;
+      bottom: number;
+      left: number;
     }
 
     interface MarkerOptions {
@@ -94,5 +104,14 @@ declare namespace google {
       function addListener(instance: any, eventName: string, handler: Function): any;
       function removeListener(listener: any): void;
     }
+
+    // Add SymbolPath enum
+    const SymbolPath: {
+      BACKWARD_CLOSED_ARROW: number;
+      BACKWARD_OPEN_ARROW: number;
+      CIRCLE: number;
+      FORWARD_CLOSED_ARROW: number;
+      FORWARD_OPEN_ARROW: number;
+    };
   }
 }
