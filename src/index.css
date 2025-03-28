@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -163,6 +164,13 @@
     animation: subtle-pan 30s ease-in-out infinite alternate;
     will-change: transform;
   }
+  
+  /* Added reverse parallax effect */
+  .parallax-bg-reverse {
+    transform: translateZ(0);
+    animation: subtle-pan-reverse 30s ease-in-out infinite alternate;
+    will-change: transform;
+  }
 }
 
 @layer utilities {
@@ -211,5 +219,15 @@
   }
   100% {
     transform: scale(1.05) translate3d(1%, 1%, 0);
+  }
+}
+
+/* Added reverse parallax animation */
+@keyframes subtle-pan-reverse {
+  0% {
+    transform: scale(1.05) translate3d(1%, 1%, 0);
+  }
+  100% {
+    transform: scale(1.05) translate3d(-1%, -1%, 0);
   }
 }

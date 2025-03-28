@@ -63,12 +63,36 @@ const Index = () => {
         {/* How It Works */}
         <HowItWorks />
         
-        {/* CTA Section */}
-        <section className="relative bg-coral-500 text-white overflow-hidden py-16 md:py-24">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1621168322085-57c5a7e3a9e8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80')] bg-cover opacity-10"></div>
+        {/* Community Section with Parallax Background */}
+        <section className="relative py-24 md:py-32 overflow-hidden">
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80')] bg-cover bg-center motion-safe:parallax-bg"></div>
+          <div className="absolute inset-0 bg-black/40"></div>
           <div className="relative section-container">
             <div className="max-w-3xl mx-auto text-center space-y-8">
-              <h2 className="text-3xl md:text-4xl font-medium">Have a space to sublease?</h2>
+              <h2 className="text-3xl md:text-4xl font-medium text-white">Join our growing community</h2>
+              <p className="text-white/90 text-lg">
+                Thousands of students and young professionals have found their perfect temporary housing through Subleasify.
+              </p>
+              <div className="pt-4">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="bg-white text-coral-500 hover:bg-white/90 border-white btn-transition"
+                >
+                  Browse Listings
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* CTA Section with Enhanced Background */}
+        <section className="relative overflow-hidden py-16 md:py-24">
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80')] bg-cover bg-center motion-safe:parallax-bg-reverse"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-coral-500/90 to-coral-600/90"></div>
+          <div className="relative section-container">
+            <div className="max-w-3xl mx-auto text-center space-y-8">
+              <h2 className="text-3xl md:text-4xl font-medium text-white">Have a space to sublease?</h2>
               <p className="text-white/90 text-lg">
                 List your space on Subleasify and connect with trusted students and young professionals looking for short-term housing.
               </p>
@@ -79,6 +103,29 @@ const Index = () => {
                   className="bg-white text-coral-500 hover:bg-white/90 border-white btn-transition"
                 >
                   List Your Lease
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* Additional Section with Smiling People Background */}
+        <section className="relative py-24 md:py-32 overflow-hidden">
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1543269664-76bc3997d9ea?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80')] bg-cover bg-center motion-safe:parallax-bg"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50"></div>
+          <div className="relative section-container">
+            <div className="max-w-3xl mx-auto text-center space-y-8">
+              <h2 className="text-3xl md:text-4xl font-medium text-white">Make lifelong connections</h2>
+              <p className="text-white/90 text-lg">
+                Beyond finding housing, Subleasify helps you connect with like-minded people in new cities.
+              </p>
+              <div className="pt-4 flex justify-center gap-4">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="bg-white text-coral-500 hover:bg-white/90 border-white btn-transition"
+                >
+                  Learn More
                 </Button>
               </div>
             </div>
