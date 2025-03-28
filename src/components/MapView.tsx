@@ -8,21 +8,31 @@ interface Listing {
   title: string;
   location: string;
   price: number;
-  imageUrl: string;
-  // Add other properties as needed
+  latitude: number | null;
+  longitude: number | null;
+  images?: string[] | null;
 }
 
 interface MapViewProps {
   listings: Listing[];
   onMarkerClick?: (id: string) => void;
   className?: string;
+  centerLat?: number;
+  centerLng?: number;
+  zoom?: number;
 }
 
-// This is a mock API key for demonstration
-// In production, you should use environment variables
-const GOOGLE_MAPS_API_KEY = "YOUR_API_KEY";
+// Using environment variable for the API key
+const GOOGLE_MAPS_API_KEY = "AIzaSyAZCMcaFcwGFJn2CzJ6Bj6qZcph3NaDnqQ";
 
-const MapView = ({ listings, onMarkerClick, className = "" }: MapViewProps) => {
+const MapView = ({ 
+  listings, 
+  onMarkerClick, 
+  className = "",
+  centerLat = 37.7749,
+  centerLng = -122.4194,
+  zoom = 12
+}: MapViewProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
@@ -39,8 +49,8 @@ const MapView = ({ listings, onMarkerClick, className = "" }: MapViewProps) => {
       if (mapRef.current && !map) {
         // Create a new map instance
         const newMap = new google.maps.Map(mapRef.current, {
-          center: { lat: 37.7749, lng: -122.4194 }, // Default to San Francisco
-          zoom: 12,
+          center: { lat: centerLat, lng: centerLng },
+          zoom: zoom,
           mapTypeControl: false,
           fullscreenControl: false,
           streetViewControl: false,
@@ -58,7 +68,7 @@ const MapView = ({ listings, onMarkerClick, className = "" }: MapViewProps) => {
         setInfoWindow(new google.maps.InfoWindow());
       }
     });
-  }, [map]);
+  }, [map, centerLat, centerLng, zoom]);
 
   // Add markers when the map and listings are available
   useEffect(() => {
@@ -66,73 +76,72 @@ const MapView = ({ listings, onMarkerClick, className = "" }: MapViewProps) => {
       // Remove existing markers
       markers.forEach((marker) => marker.setMap(null));
       
-      // Mock geocoding (in a real app, you would use geocoding service or store coordinates)
-      const mockLocations = [
-        { lat: 37.7749, lng: -122.4194 }, // San Francisco
-        { lat: 37.8715, lng: -122.2730 }, // Berkeley
-        { lat: 37.4419, lng: -122.1430 }, // Palo Alto
-        { lat: 42.2808, lng: -83.7430 }, // Ann Arbor
-        { lat: 42.3736, lng: -71.1097 }, // Cambridge
-        { lat: 40.7128, lng: -74.0060 }, // New York
-        { lat: 37.4275, lng: -122.1697 }, // Stanford
-        { lat: 34.0522, lng: -118.2437 }, // Los Angeles
-        { lat: 42.3601, lng: -71.0589 }, // Boston
-      ];
-      
-      // Create new markers
-      const newMarkers = listings.map((listing, index) => {
-        // Use mock location (replace with real coordinates in production)
-        const position = mockLocations[index % mockLocations.length];
-        
-        const marker = new google.maps.Marker({
-          position,
-          map,
-          title: listing.title,
-          label: {
-            text: `$${listing.price}`,
-            color: "white",
-            fontSize: "14px",
-            fontWeight: "bold",
-          },
-          icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 14,
-            fillColor: "#0ea5e9",
-            fillOpacity: 1,
-            strokeColor: "white",
-            strokeWeight: 2,
-          },
-        });
-
-        marker.addListener("click", () => {
-          if (infoWindow) {
-            infoWindow.setContent(`
-              <div style="width: 240px; padding: 8px;">
-                <h3 style="font-weight: bold; margin-bottom: 8px;">${listing.title}</h3>
-                <p>${listing.location}</p>
-                <p style="font-weight: bold;">$${listing.price}/mo</p>
-              </div>
-            `);
-            infoWindow.open(map, marker);
-          }
+      // Create new markers for listings with valid coordinates
+      const newMarkers = listings
+        .filter(listing => listing.latitude && listing.longitude) // Only use listings with coordinates
+        .map((listing) => {
+          const position = { 
+            lat: listing.latitude as number, 
+            lng: listing.longitude as number 
+          };
           
-          if (onMarkerClick) {
-            onMarkerClick(listing.id);
-          }
-        });
+          const marker = new google.maps.Marker({
+            position,
+            map,
+            title: listing.title,
+            label: {
+              text: `$${listing.price}`,
+              color: "white",
+              fontSize: "14px",
+              fontWeight: "bold",
+            },
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 14,
+              fillColor: "#ee6c4d", // Coral color from our theme
+              fillOpacity: 1,
+              strokeColor: "white",
+              strokeWeight: 2,
+            },
+          });
 
-        return marker;
-      });
+          marker.addListener("click", () => {
+            if (infoWindow) {
+              infoWindow.setContent(`
+                <div style="width: 240px; padding: 8px;">
+                  <h3 style="font-weight: bold; margin-bottom: 8px;">${listing.title}</h3>
+                  <p>${listing.location}</p>
+                  <p style="font-weight: bold;">$${listing.price}/mo</p>
+                </div>
+              `);
+              infoWindow.open(map, marker);
+            }
+            
+            if (onMarkerClick) {
+              onMarkerClick(listing.id);
+            }
+          });
+
+          return marker;
+        });
 
       setMarkers(newMarkers);
 
-      // Fit bounds to show all markers
+      // Fit bounds to show all markers if we have any
       if (newMarkers.length > 0) {
         const bounds = new google.maps.LatLngBounds();
         newMarkers.forEach((marker) => {
           bounds.extend(marker.getPosition()!);
         });
         map.fitBounds(bounds);
+        
+        // Don't zoom in too far
+        const listener = google.maps.event.addListener(map, "idle", () => {
+          if (map.getZoom()! > 16) {
+            map.setZoom(16);
+          }
+          google.maps.event.removeListener(listener);
+        });
       }
     }
   }, [map, listings, infoWindow, markers, onMarkerClick]);
