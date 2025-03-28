@@ -44,7 +44,7 @@ export const useListings = () => {
           throw new Error(error.message);
         }
         
-        return data as Listing[];
+        return data as unknown as Listing[];
       },
     });
   };
@@ -66,7 +66,7 @@ export const useListings = () => {
           throw new Error(error.message);
         }
         
-        return data as Listing | null;
+        return data as unknown as Listing | null;
       },
       enabled: !!id,
     });
@@ -89,7 +89,7 @@ export const useListings = () => {
           throw new Error(error.message);
         }
         
-        return data as Listing[];
+        return data as unknown as Listing[];
       },
       enabled: !!userId,
     });
@@ -112,7 +112,7 @@ export const useListings = () => {
           throw new Error(error.message);
         }
         
-        return data as Listing;
+        return data as unknown as Listing;
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["listings"] });
@@ -139,7 +139,7 @@ export const useListings = () => {
           throw new Error(error.message);
         }
         
-        return data as Listing;
+        return data as unknown as Listing;
       },
       onSuccess: (data) => {
         queryClient.invalidateQueries({ queryKey: ["listings"] });

@@ -1,7 +1,6 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
 
 interface Profile {
   id: string;
@@ -18,12 +17,33 @@ interface UpdateProfileData {
 }
 
 export const useProfiles = () => {
-  const [error, setError] = useState<string | null>(null);
+  // Fetch profile by ID
+  const useProfileById = (id: string | undefined) => {
+    return useQuery({
+      queryKey: ["profiles", id],
+      queryFn: async () => {
+        if (!id) return null;
+        
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", id)
+          .maybeSingle();
+        
+        if (error) {
+          throw new Error(error.message);
+        }
+        
+        return data as unknown as Profile | null;
+      },
+      enabled: !!id,
+    });
+  };
 
-  // Fetch the current user's profile
+  // Fetch current user profile
   const useCurrentProfile = (userId: string | undefined) => {
     return useQuery({
-      queryKey: ["profile", userId],
+      queryKey: ["profiles", "current", userId],
       queryFn: async () => {
         if (!userId) return null;
         
@@ -37,72 +57,41 @@ export const useProfiles = () => {
           throw new Error(error.message);
         }
         
-        return data as Profile | null;
+        return data as unknown as Profile | null;
       },
       enabled: !!userId,
     });
   };
 
-  // Fetch a profile by ID
-  const useProfileById = (userId: string | undefined) => {
-    return useQuery({
-      queryKey: ["profile", userId],
-      queryFn: async () => {
-        if (!userId) return null;
-        
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", userId)
-          .maybeSingle();
-        
-        if (error) {
-          throw new Error(error.message);
-        }
-        
-        return data as Profile | null;
-      },
-      enabled: !!userId,
-    });
-  };
-
-  // Update the current user's profile
+  // Update profile
   const useUpdateProfile = () => {
     const queryClient = useQueryClient();
     
     return useMutation({
-      mutationFn: async (profileData: UpdateProfileData) => {
-        const userId = (await supabase.auth.getUser()).data.user?.id;
-        
-        if (!userId) {
-          throw new Error("User is not authenticated");
-        }
-        
+      mutationFn: async ({ id, ...profile }: UpdateProfileData & { id: string }) => {
         const { data, error } = await supabase
           .from("profiles")
-          .update(profileData)
-          .eq("id", userId)
+          .update(profile)
+          .eq("id", id)
           .select()
           .single();
         
         if (error) {
-          setError(error.message);
           throw new Error(error.message);
         }
         
-        return data as Profile;
+        return data as unknown as Profile;
       },
       onSuccess: (data) => {
-        queryClient.invalidateQueries({ queryKey: ["profile", data.id] });
-        setError(null);
+        queryClient.invalidateQueries({ queryKey: ["profiles"] });
+        queryClient.invalidateQueries({ queryKey: ["profiles", data.id] });
       },
     });
   };
 
   return {
-    useCurrentProfile,
     useProfileById,
+    useCurrentProfile,
     useUpdateProfile,
-    error,
   };
 };

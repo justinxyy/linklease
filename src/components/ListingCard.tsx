@@ -34,6 +34,7 @@ const ListingCard = ({
   const [isFavorited, setIsFavorited] = useState(false);
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return "";
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
@@ -72,9 +73,11 @@ const ListingCard = ({
           >
             <Heart className="h-5 w-5" fill={isFavorited ? "currentColor" : "none"} />
           </button>
-          <div className="absolute bottom-3 left-3 bg-brand-600 text-white text-xs px-2 py-1 rounded-md">
-            {formatDate(startDate)} - {formatDate(endDate)}
-          </div>
+          {startDate && endDate && (
+            <div className="absolute bottom-3 left-3 bg-brand-600 text-white text-xs px-2 py-1 rounded-md">
+              {formatDate(startDate)} - {formatDate(endDate)}
+            </div>
+          )}
         </div>
       </Link>
       
@@ -89,11 +92,13 @@ const ListingCard = ({
             <p className="text-muted-foreground text-sm mt-1">{location}</p>
           </div>
           
-          <div className="flex items-center space-x-1 text-sm">
-            <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-            <span>{rating.toFixed(1)}</span>
-            <span className="text-muted-foreground">({reviewCount})</span>
-          </div>
+          {(rating > 0 || reviewCount > 0) && (
+            <div className="flex items-center space-x-1 text-sm">
+              <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+              <span>{rating.toFixed(1)}</span>
+              <span className="text-muted-foreground">({reviewCount})</span>
+            </div>
+          )}
         </div>
         
         <div className="mt-3 pt-3 border-t">

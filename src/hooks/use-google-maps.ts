@@ -2,30 +2,28 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-interface GeocodeResult {
-  results: {
-    formatted_address: string;
+interface GeocodingResult {
+  results: Array<{
     geometry: {
       location: {
         lat: number;
         lng: number;
       };
     };
-    place_id: string;
-    types: string[];
-  }[];
+    formatted_address: string;
+  }>;
   status: string;
 }
 
-interface PlacesAutocompleteResult {
-  predictions: {
+interface PlacePredictionsResult {
+  predictions: Array<{
     description: string;
     place_id: string;
-    structured_formatting: {
+    structured_formatting?: {
       main_text: string;
       secondary_text: string;
     };
-  }[];
+  }>;
   status: string;
 }
 
@@ -34,22 +32,24 @@ export const useGoogleMaps = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Geocode an address to get coordinates
-  const geocodeAddress = async (address: string): Promise<GeocodeResult | null> => {
+  const geocodeAddress = async (address: string): Promise<GeocodingResult | null> => {
     setIsLoading(true);
     setError(null);
     
     try {
       const { data, error } = await supabase.functions.invoke("geocoding", {
-        body: { address },
+        body: { address }
       });
       
       if (error) {
-        throw new Error(error.message);
+        setError(error.message);
+        return null;
       }
       
-      return data as GeocodeResult;
-    } catch (err: any) {
-      setError(err.message || "Failed to geocode address");
+      return data as GeocodingResult;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to geocode address";
+      setError(errorMessage);
       return null;
     } finally {
       setIsLoading(false);
@@ -57,22 +57,24 @@ export const useGoogleMaps = () => {
   };
 
   // Get place predictions for autocomplete
-  const getPlacePredictions = async (input: string): Promise<PlacesAutocompleteResult | null> => {
+  const getPlacePredictions = async (input: string): Promise<PlacePredictionsResult | null> => {
     setIsLoading(true);
     setError(null);
     
     try {
       const { data, error } = await supabase.functions.invoke("places-autocomplete", {
-        body: { input },
+        body: { input }
       });
       
       if (error) {
-        throw new Error(error.message);
+        setError(error.message);
+        return null;
       }
       
-      return data as PlacesAutocompleteResult;
-    } catch (err: any) {
-      setError(err.message || "Failed to get place predictions");
+      return data as PlacePredictionsResult;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to get place predictions";
+      setError(errorMessage);
       return null;
     } finally {
       setIsLoading(false);
@@ -83,6 +85,6 @@ export const useGoogleMaps = () => {
     geocodeAddress,
     getPlacePredictions,
     isLoading,
-    error,
+    error
   };
 };

@@ -8,9 +8,30 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { MapPin, Calendar, DollarSign, Filter, Check, ArrowDownUp, Map, List } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useListings } from "@/hooks/use-listings";
+import { useAuth } from "@/contexts/AuthContext";
+
+// Define extended listing type for the display with additional UI properties
+interface UIListing {
+  id: string;
+  title: string;
+  location: string;
+  price: number;
+  imageUrl?: string;  // Maps to the first image in images array
+  rating?: number;    // Not in DB schema, but used for UI
+  reviewCount?: number; // Not in DB schema, but used for UI
+  startDate?: string; // Not in DB schema, but used for UI
+  endDate?: string;   // Not in DB schema, but used for UI
+  propertyType?: string; // Not in DB schema, but used for UI
+  bedrooms?: number;  // Not in DB schema, but used for UI
+  bathrooms?: number; // Not in DB schema, but used for UI
+  latitude?: number | null;
+  longitude?: number | null;
+  images?: string[] | null;
+}
 
 // Mock data for listings
-const mockListings = [
+const mockListings: UIListing[] = [
   {
     id: "1",
     title: "Modern Studio Apartment near UC Berkeley",
@@ -128,6 +149,10 @@ const mockListings = [
 const propertyTypes = ["Any", "Apartment", "Studio", "Private Room", "Shared Room", "House"];
 
 const Listings = () => {
+  const { useAllListings } = useListings();
+  const { data: listings, isLoading } = useAllListings();
+  const { user } = useAuth();
+
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [priceRange, setPriceRange] = useState([500, 2000]);
@@ -154,6 +179,29 @@ const Listings = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Transform DB listings to UI listings
+  const displayListings: UIListing[] = listings ? listings.map(listing => ({
+    id: listing.id,
+    title: listing.title,
+    location: listing.location,
+    price: listing.price,
+    latitude: listing.latitude,
+    longitude: listing.longitude,
+    imageUrl: listing.images && listing.images.length > 0 ? listing.images[0] : undefined,
+    images: listing.images,
+    // Add mock data for UI fields not in the DB schema
+    rating: 4.7,
+    reviewCount: 25,
+    startDate: "2023-06-01",
+    endDate: "2023-08-15",
+    propertyType: "Apartment",
+    bedrooms: 1,
+    bathrooms: 1,
+  })) : [];
+  
+  // Use mock data if real listings are not available
+  const listingsToShow = displayListings.length > 0 ? displayListings : mockListings;
   
   return (
     <div className={`min-h-screen flex flex-col ${isLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-500`}>
@@ -329,38 +377,45 @@ const Listings = () => {
           
           {/* Results Count */}
           <div className="text-sm text-muted-foreground mb-6">
-            <p>Showing {mockListings.length} available subleases</p>
+            <p>Showing {listingsToShow.length} available subleases</p>
+            {isLoading && <p>Loading listings...</p>}
           </div>
           
           {/* Conditionally show map or grid view */}
           {showMap ? (
             <div className="h-[calc(100vh-24rem)]">
               <MapView 
-                listings={mockListings} 
+                listings={listingsToShow} 
                 onMarkerClick={(id) => console.log(`Clicked listing ${id}`)}
               />
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {mockListings.map((listing) => (
-                <ListingCard
-                  key={listing.id}
-                  id={listing.id}
-                  title={listing.title}
-                  location={listing.location}
-                  price={listing.price}
-                  rating={listing.rating}
-                  reviewCount={listing.reviewCount}
-                  imageUrl={listing.imageUrl}
-                  startDate={listing.startDate}
-                  endDate={listing.endDate}
-                />
-              ))}
+              {isLoading ? (
+                <p>Loading listings...</p>
+              ) : listingsToShow.length === 0 ? (
+                <p>No listings found</p>
+              ) : (
+                listingsToShow.map((listing) => (
+                  <ListingCard
+                    key={listing.id}
+                    id={listing.id}
+                    title={listing.title}
+                    location={listing.location}
+                    price={listing.price}
+                    rating={listing.rating || 0}
+                    reviewCount={listing.reviewCount || 0}
+                    imageUrl={listing.imageUrl || "/placeholder.svg"}
+                    startDate={listing.startDate || ""}
+                    endDate={listing.endDate || ""}
+                  />
+                ))
+              )}
             </div>
           )}
           
           {/* Pagination - Only show in list view */}
-          {!showMap && (
+          {!showMap && listingsToShow.length > 0 && (
             <div className="mt-12 flex justify-center">
               <nav className="flex items-center gap-1">
                 <button className="px-3 py-2 rounded-md border text-sm hover:bg-gray-50 transition-colors">
