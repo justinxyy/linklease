@@ -22,8 +22,8 @@ export interface CreateListingData {
   description?: string;
   price: number;
   location: string;
-  latitude?: number;
-  longitude?: number;
+  latitude?: number | null;
+  longitude?: number | null;
   images?: string[] | null;
 }
 
