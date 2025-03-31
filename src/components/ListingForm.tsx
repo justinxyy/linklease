@@ -27,6 +27,7 @@ interface ListingFormProps {
 
 const ListingForm = ({ initialData, isEditing = false }: ListingFormProps) => {
   const { user } = useAuth();
+  // Use the new hooks directly from useListings
   const { useCreateListing, useUpdateListing } = useListings();
   const createListing = useCreateListing();
   const updateListing = useUpdateListing();

@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -18,7 +17,7 @@ import ListingsResultCount from "@/components/listings/ListingsResultCount";
 
 // Define extended listing type for the display with additional UI properties
 interface UIListing {
-  id: string;
+  id: number;
   title: string;
   location: string;
   price: number;
@@ -38,6 +37,7 @@ interface UIListing {
 const propertyTypes = ["Any", "Apartment", "Studio", "Private Room", "Shared Room", "House"];
 
 const Listings = () => {
+  // Use the new hook from useListings
   const { useAllListings } = useListings();
   const { data: listings, isLoading, error } = useAllListings();
   const { user } = useAuth();
@@ -95,9 +95,9 @@ const Listings = () => {
     reviewCount: 25,
     startDate: "2023-06-01",
     endDate: "2023-08-15",
-    propertyType: "Apartment",
-    bedrooms: 1,
-    bathrooms: 1,
+    propertyType: listing.property_type || "Apartment",
+    bedrooms: listing.bedrooms || 1,
+    bathrooms: listing.bathrooms || 1,
   })) : [];
   
   console.log("Database listings:", listings);
