@@ -11,32 +11,74 @@ export type Database = {
     Tables: {
       listings: {
         Row: {
+          amenities: string[] | null
+          bathrooms: number | null
+          bedrooms: number | null
+          campus_distance: number | null
           created_at: string | null
           description: string | null
+          end_date: string | null
+          furnished: boolean | null
+          house_rules: string | null
           id: number
           images: string[] | null
+          latitude: number | null
           location: string
+          longitude: number | null
+          max_occupancy: number | null
+          nearest_campus: string | null
           price: number
+          property_type: string | null
+          square_feet: number | null
+          start_date: string | null
           title: string
           user_id: string | null
         }
         Insert: {
+          amenities?: string[] | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          campus_distance?: number | null
           created_at?: string | null
           description?: string | null
+          end_date?: string | null
+          furnished?: boolean | null
+          house_rules?: string | null
           id?: number
           images?: string[] | null
+          latitude?: number | null
           location: string
+          longitude?: number | null
+          max_occupancy?: number | null
+          nearest_campus?: string | null
           price: number
+          property_type?: string | null
+          square_feet?: number | null
+          start_date?: string | null
           title: string
           user_id?: string | null
         }
         Update: {
+          amenities?: string[] | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          campus_distance?: number | null
           created_at?: string | null
           description?: string | null
+          end_date?: string | null
+          furnished?: boolean | null
+          house_rules?: string | null
           id?: number
           images?: string[] | null
+          latitude?: number | null
           location?: string
+          longitude?: number | null
+          max_occupancy?: number | null
+          nearest_campus?: string | null
           price?: number
+          property_type?: string | null
+          square_feet?: number | null
+          start_date?: string | null
           title?: string
           user_id?: string | null
         }

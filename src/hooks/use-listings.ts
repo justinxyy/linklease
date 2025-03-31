@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 
-interface Listing {
+export interface Listing {
   id: string;
   user_id: string;
   title: string;
@@ -17,7 +17,7 @@ interface Listing {
   updated_at: string;
 }
 
-interface CreateListingData {
+export interface CreateListingData {
   title: string;
   description?: string;
   price: number;
@@ -29,6 +29,7 @@ interface CreateListingData {
 
 export const useListings = () => {
   const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   // Fetch all listings
   const useAllListings = () => {
@@ -44,7 +45,7 @@ export const useListings = () => {
           throw new Error(error.message);
         }
         
-        return data as unknown as Listing[];
+        return data as Listing[];
       },
     });
   };
@@ -66,7 +67,7 @@ export const useListings = () => {
           throw new Error(error.message);
         }
         
-        return data as unknown as Listing | null;
+        return data as Listing | null;
       },
       enabled: !!id,
     });
@@ -89,7 +90,7 @@ export const useListings = () => {
           throw new Error(error.message);
         }
         
-        return data as unknown as Listing[];
+        return data as Listing[];
       },
       enabled: !!userId,
     });
@@ -97,13 +98,23 @@ export const useListings = () => {
 
   // Create a new listing
   const useCreateListing = () => {
-    const queryClient = useQueryClient();
-    
     return useMutation({
       mutationFn: async (listing: CreateListingData) => {
+        // Get the current authenticated user
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          throw new Error("You must be logged in to create a listing");
+        }
+        
+        const newListing = {
+          ...listing,
+          user_id: user.id,
+        };
+        
         const { data, error } = await supabase
           .from("listings")
-          .insert(listing)
+          .insert(newListing)
           .select()
           .single();
         
@@ -112,7 +123,7 @@ export const useListings = () => {
           throw new Error(error.message);
         }
         
-        return data as unknown as Listing;
+        return data as Listing;
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["listings"] });
@@ -123,10 +134,31 @@ export const useListings = () => {
 
   // Update an existing listing
   const useUpdateListing = () => {
-    const queryClient = useQueryClient();
-    
     return useMutation({
       mutationFn: async ({ id, ...listing }: CreateListingData & { id: string }) => {
+        // Ensure the user owns this listing
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          throw new Error("You must be logged in to update a listing");
+        }
+        
+        // Get the current listing to verify ownership
+        const { data: currentListing, error: fetchError } = await supabase
+          .from("listings")
+          .select("user_id")
+          .eq("id", id)
+          .single();
+        
+        if (fetchError) {
+          setError(fetchError.message);
+          throw new Error(fetchError.message);
+        }
+        
+        if (currentListing.user_id !== user.id) {
+          throw new Error("You can only update your own listings");
+        }
+        
         const { data, error } = await supabase
           .from("listings")
           .update(listing)
@@ -139,7 +171,7 @@ export const useListings = () => {
           throw new Error(error.message);
         }
         
-        return data as unknown as Listing;
+        return data as Listing;
       },
       onSuccess: (data) => {
         queryClient.invalidateQueries({ queryKey: ["listings"] });
@@ -151,10 +183,31 @@ export const useListings = () => {
 
   // Delete a listing
   const useDeleteListing = () => {
-    const queryClient = useQueryClient();
-    
     return useMutation({
       mutationFn: async (id: string) => {
+        // Ensure the user owns this listing
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          throw new Error("You must be logged in to delete a listing");
+        }
+        
+        // Get the current listing to verify ownership
+        const { data: currentListing, error: fetchError } = await supabase
+          .from("listings")
+          .select("user_id")
+          .eq("id", id)
+          .single();
+        
+        if (fetchError) {
+          setError(fetchError.message);
+          throw new Error(fetchError.message);
+        }
+        
+        if (currentListing.user_id !== user.id) {
+          throw new Error("You can only delete your own listings");
+        }
+        
         const { error } = await supabase
           .from("listings")
           .delete()
