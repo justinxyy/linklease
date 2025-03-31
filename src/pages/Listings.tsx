@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { MapPin, Calendar, DollarSign, Filter, Check, ArrowDownUp, Map, List } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useListings } from "@/hooks/use-listings";
+import { useListings, Listing } from "@/hooks/use-listings";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 // Define extended listing type for the display with additional UI properties
 interface UIListing {
@@ -25,133 +26,18 @@ interface UIListing {
   propertyType?: string; // Not in DB schema, but used for UI
   bedrooms?: number;  // Not in DB schema, but used for UI
   bathrooms?: number; // Not in DB schema, but used for UI
-  latitude?: number | null;
-  longitude?: number | null;
+  latitude: number | null;
+  longitude: number | null;
   images?: string[] | null;
 }
-
-// Mock data for listings
-const mockListings: UIListing[] = [
-  {
-    id: "1",
-    title: "Modern Studio Apartment near UC Berkeley",
-    location: "Berkeley, CA",
-    price: 1200,
-    rating: 4.9,
-    reviewCount: 42,
-    imageUrl: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
-    startDate: "2023-06-01",
-    endDate: "2023-08-15",
-    propertyType: "Studio",
-    bedrooms: 1,
-    bathrooms: 1,
-  },
-  {
-    id: "2",
-    title: "Cozy Room in Shared Apartment",
-    location: "Palo Alto, CA",
-    price: 950,
-    rating: 4.7,
-    reviewCount: 36,
-    imageUrl: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
-    startDate: "2023-05-15",
-    endDate: "2023-08-30",
-    propertyType: "Private Room",
-    bedrooms: 1,
-    bathrooms: 1.5,
-  },
-  {
-    id: "3",
-    title: "Luxury 1BR with Campus View",
-    location: "Ann Arbor, MI",
-    price: 1350,
-    rating: 4.8,
-    reviewCount: 28,
-    imageUrl: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
-    startDate: "2023-06-01",
-    endDate: "2023-07-31",
-    propertyType: "Apartment",
-    bedrooms: 1,
-    bathrooms: 1,
-  },
-  {
-    id: "4",
-    title: "Private Room in Townhouse",
-    location: "Cambridge, MA",
-    price: 1100,
-    rating: 4.6,
-    reviewCount: 31,
-    imageUrl: "https://images.unsplash.com/photo-1554995207-c18c203602cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
-    startDate: "2023-06-15",
-    endDate: "2023-08-20",
-    propertyType: "Private Room",
-    bedrooms: 1,
-    bathrooms: 2,
-  },
-  {
-    id: "5",
-    title: "Stylish Studio Apartment",
-    location: "New York, NY",
-    price: 1800,
-    rating: 4.9,
-    reviewCount: 52,
-    imageUrl: "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
-    startDate: "2023-05-20",
-    endDate: "2023-08-10",
-    propertyType: "Studio",
-    bedrooms: 1,
-    bathrooms: 1,
-  },
-  {
-    id: "6",
-    title: "Quiet Room near Stanford",
-    location: "Stanford, CA",
-    price: 1250,
-    rating: 4.7,
-    reviewCount: 19,
-    imageUrl: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
-    startDate: "2023-06-01",
-    endDate: "2023-09-01",
-    propertyType: "Private Room",
-    bedrooms: 1,
-    bathrooms: 1,
-  },
-  {
-    id: "7",
-    title: "Modern 2BR Apartment",
-    location: "Los Angeles, CA",
-    price: 1600,
-    rating: 4.8,
-    reviewCount: 38,
-    imageUrl: "https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
-    startDate: "2023-06-10",
-    endDate: "2023-08-25",
-    propertyType: "Apartment",
-    bedrooms: 2,
-    bathrooms: 2,
-  },
-  {
-    id: "8",
-    title: "Bright Studio with City Views",
-    location: "Boston, MA",
-    price: 1400,
-    rating: 4.6,
-    reviewCount: 27,
-    imageUrl: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80",
-    startDate: "2023-05-25",
-    endDate: "2023-08-15",
-    propertyType: "Studio",
-    bedrooms: 1,
-    bathrooms: 1,
-  },
-];
 
 const propertyTypes = ["Any", "Apartment", "Studio", "Private Room", "Shared Room", "House"];
 
 const Listings = () => {
   const { useAllListings } = useListings();
-  const { data: listings, isLoading } = useAllListings();
+  const { data: listings, isLoading, error } = useAllListings();
   const { user } = useAuth();
+  const { toast } = useToast();
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -180,6 +66,16 @@ const Listings = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error loading listings",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
+
   // Transform DB listings to UI listings
   const displayListings: UIListing[] = listings ? listings.map(listing => ({
     id: listing.id,
@@ -200,8 +96,8 @@ const Listings = () => {
     bathrooms: 1,
   })) : [];
   
-  // Use mock data if real listings are not available
-  const listingsToShow = displayListings.length > 0 ? displayListings : mockListings;
+  console.log("Database listings:", listings);
+  console.log("Display listings:", displayListings);
   
   return (
     <div className={`min-h-screen flex flex-col ${isLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-500`}>
@@ -377,26 +273,37 @@ const Listings = () => {
           
           {/* Results Count */}
           <div className="text-sm text-muted-foreground mb-6">
-            <p>Showing {listingsToShow.length} available subleases</p>
-            {isLoading && <p>Loading listings...</p>}
+            {isLoading ? (
+              <p>Loading listings...</p>
+            ) : displayListings.length > 0 ? (
+              <p>Showing {displayListings.length} available subleases</p>
+            ) : (
+              <p>No listings found</p>
+            )}
           </div>
           
           {/* Conditionally show map or grid view */}
           {showMap ? (
             <div className="h-[calc(100vh-24rem)]">
               <MapView 
-                listings={listingsToShow} 
+                listings={displayListings} 
                 onMarkerClick={(id) => console.log(`Clicked listing ${id}`)}
               />
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {isLoading ? (
-                <p>Loading listings...</p>
-              ) : listingsToShow.length === 0 ? (
-                <p>No listings found</p>
+                <div className="col-span-full text-center py-10">
+                  <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+                  <p className="mt-4">Loading listings...</p>
+                </div>
+              ) : displayListings.length === 0 ? (
+                <div className="col-span-full text-center py-10">
+                  <p className="text-lg text-muted-foreground">No listings found</p>
+                  <p className="mt-2">Try adjusting your filters or search criteria</p>
+                </div>
               ) : (
-                listingsToShow.map((listing) => (
+                displayListings.map((listing) => (
                   <ListingCard
                     key={listing.id}
                     id={listing.id}
@@ -415,7 +322,7 @@ const Listings = () => {
           )}
           
           {/* Pagination - Only show in list view */}
-          {!showMap && listingsToShow.length > 0 && (
+          {!showMap && displayListings.length > 0 && (
             <div className="mt-12 flex justify-center">
               <nav className="flex items-center gap-1">
                 <button className="px-3 py-2 rounded-md border text-sm hover:bg-gray-50 transition-colors">
